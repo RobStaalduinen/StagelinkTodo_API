@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
 
-	before_action :set_user, only: [:show, :update, :destroy, :login]
+	before_action :set_user, only: [:show, :update, :login]
 	#Wrap parameters so JSON params can be submitted as a simple hash
 	wrap_parameters :user, include: [:username, :email, :password, :password_confirmation]
 
@@ -26,6 +26,10 @@ class UsersController < ApplicationController
 	end
 
 	def destroy
+		@user = User.includes(:todos).find(params[:id])
+		rescue ActiveRecord::RecordNotFound
+        	render json: { error: "User not found" }, status: :not_found
+
 		#Cleanup users ToDo entries
 		todos = @user.todos
 		todos.destroy_all
